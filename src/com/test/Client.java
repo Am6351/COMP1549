@@ -55,7 +55,7 @@ public class Client {
 
     public static void main(String[] args) {
         String serverAddress = "localhost"; 
-        int serverPort = 12345; //port can be changed as well
+        int serverPort = 12345; 
         Client client = new Client(serverAddress, serverPort);
         client.connect();
     }
