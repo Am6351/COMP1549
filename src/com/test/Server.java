@@ -13,12 +13,14 @@ public class Server {
     private Map<Integer, String> clientNames; // Map to store client names with their IDs
     private Map<Integer, ClientHandler> clients;
     private boolean running;
+    private Integer coordinatorId; // ID of the current coordinator
 
     public Server(int port) {
         this.port = port;
         this.clientNames = new HashMap<>();
         this.clients = new HashMap<>();
         this.running = false;
+        this.coordinatorId = null; // Initially no coordinator
     }
 
     public void start() {
@@ -41,6 +43,10 @@ public class Server {
                 ClientHandler clientHandler = new ClientHandler(socket, this, name);
                 clients.put(clientHandler.getId(), clientHandler);
                 clientNames.put(clientHandler.getId(), name);
+                if (coordinatorId == null) {
+                    coordinatorId = clientHandler.getId(); // Assign the first client as coordinator
+                    clientHandler.setCoordinator(true);
+                }
                 new Thread(clientHandler).start();
             }
             serverSocket.close();
@@ -61,6 +67,15 @@ public class Server {
     public synchronized void removeClient(int clientId) {
         clients.remove(clientId);
         clientNames.remove(clientId);
+        if (clientId == coordinatorId) {
+            // If the coordinator disconnected, assign a new coordinator
+            if (!clients.isEmpty()) {
+                coordinatorId = clients.keySet().iterator().next();
+                clients.get(coordinatorId).setCoordinator(true);
+            } else {
+                coordinatorId = null; // If no clients left, set coordinator to null
+            }
+        }
         System.out.println("Client disconnected: " + clientId);
     }
 
