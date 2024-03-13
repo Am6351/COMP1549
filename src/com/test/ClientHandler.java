@@ -11,12 +11,14 @@ public class ClientHandler implements Runnable {
     private Server server;
     private PrintWriter out;
     private BufferedReader in;
+    private boolean isCoordinator; // Flag indicating whether the client is the coordinator
 
     public ClientHandler(Socket socket, Server server, String name) {
         this.id = nextId++;
         this.socket = socket;
         this.server = server;
         this.name = name;
+        this.isCoordinator = false; // Initially not a coordinator
 
         try {
             this.out = new PrintWriter(socket.getOutputStream(), true);
@@ -34,18 +36,34 @@ public class ClientHandler implements Runnable {
         out.println(message);
     }
 
+    public void setCoordinator(boolean isCoordinator) {
+        this.isCoordinator = isCoordinator;
+    }
+
     @Override
     public void run() {
         try {
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
-                System.out.println("Message from client " + name + ": " + inputLine);
-                server.broadcastMessage(id, inputLine);
+                if (isCoordinator) {
+                    // If the client is the coordinator, handle messages differently (if desired)
+                    handleCoordinatorMessage(inputLine);
+                } else {
+                    System.out.println("Message from client " + name + ": " + inputLine);
+                    server.broadcastMessage(id, inputLine);
+                }
             }
             server.removeClient(id);
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void handleCoordinatorMessage(String message) {
+        // Handle coordinator's messages here (if needed)
+        // For example, you may want to process coordinator-specific commands or actions
+        // In this example, coordinator's messages are broadcasted just like regular messages
+        server.broadcastMessage(id, message);
     }
 }
