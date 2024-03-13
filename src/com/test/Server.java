@@ -10,23 +10,17 @@ import java.util.*;
  */
 public class Server {
     private int port;
+    private Map<Integer, String> clientNames; // Map to store client names with their IDs
     private Map<Integer, ClientHandler> clients;
     private boolean running;
 
-    /**
-     * Constructs a Server object with the specified port.
-     *
-     * @param port the port number on which the server will listen for connections
-     */
     public Server(int port) {
         this.port = port;
+        this.clientNames = new HashMap<>();
         this.clients = new HashMap<>();
         this.running = false;
     }
 
-    /**
-     * Starts the server by creating a ServerSocket and accepting incoming client connections.
-     */
     public void start() {
         try {
             ServerSocket serverSocket = new ServerSocket(port);
@@ -37,9 +31,16 @@ public class Server {
                 Socket socket = serverSocket.accept();
                 System.out.println("New client connected: " + socket);
 
+                // Prompt the client for their name
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                out.println("Enter your name:");
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                String name = in.readLine();
+
                 // Create a new ClientHandler for each connected client and start it in a separate thread
-                ClientHandler clientHandler = new ClientHandler(socket, this);
+                ClientHandler clientHandler = new ClientHandler(socket, this, name);
                 clients.put(clientHandler.getId(), clientHandler);
+                clientNames.put(clientHandler.getId(), name);
                 new Thread(clientHandler).start();
             }
             serverSocket.close();
@@ -48,35 +49,21 @@ public class Server {
         }
     }
 
-    /**
-     * Broadcasts a message to all clients except the one with the specified client ID.
-     *
-     * @param clientId the ID of the client to exclude from receiving the message
-     * @param message the message to broadcast
-     */
     public synchronized void broadcastMessage(int clientId, String message) {
+        String senderName = clientNames.get(clientId);
         for (ClientHandler client : clients.values()) {
             if (client.getId() != clientId) {
-                client.sendMessage(message);
+                client.sendMessage(senderName + ": " + message); // Include sender's name in the message
             }
         }
     }
 
-    /**
-     * Removes a client from the list of connected clients.
-     *
-     * @param clientId the ID of the client to remove
-     */
     public synchronized void removeClient(int clientId) {
         clients.remove(clientId);
+        clientNames.remove(clientId);
         System.out.println("Client disconnected: " + clientId);
     }
 
-    /**
-     * Entry point for starting the server.
-     *
-     * @param args command line arguments (not used)
-     */
     public static void main(String[] args) {
         int port = 12345; // Change port as needed
         Server server = new Server(port);
