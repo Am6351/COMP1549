@@ -44,7 +44,32 @@ public class Client {
             while (true) {
                 String message = scanner.nextLine();
                 sendMessage(message);
+                if (message.equalsIgnoreCase("quit")) {
+                    disconnect(); // Disconnect if user types 'quit'
+                    break;
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Disconnects from the server.
+     */
+    public void disconnect() {
+        try {
+            // Close the socket and input/output streams
+            if (socket != null) {
+                socket.close();
+            }
+            if (out != null) {
+                out.close();
+            }
+            if (in != null) {
+                in.close();
+            }
+            System.out.println("Disconnected from server.");
         } catch (IOException e) {
             e.printStackTrace();
         }
