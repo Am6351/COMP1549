@@ -45,11 +45,12 @@ public class ClientHandler implements Runnable {
         try {
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
-                if (isCoordinator) {
-                    // If the client is the coordinator, handle messages differently (if desired)
-                    handleCoordinatorMessage(inputLine);
+                if (inputLine.equalsIgnoreCase("list")) {
+                    // Handle special command to view client list
+                    String clientList = server.getClientList();
+                    sendMessage(clientList);
                 } else {
-                    System.out.println("Message from client " + name + ": " + inputLine);
+                    // Broadcast the received message to all clients
                     server.broadcastMessage(id, inputLine);
                 }
             }
@@ -58,12 +59,5 @@ public class ClientHandler implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private void handleCoordinatorMessage(String message) {
-        // Handle coordinator's messages here (if needed)
-        // For example, you may want to process coordinator-specific commands or actions
-        // In this example, coordinator's messages are broadcasted just like regular messages
-        server.broadcastMessage(id, message);
     }
 }
