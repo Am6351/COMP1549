@@ -79,6 +79,19 @@ public class Server {
         System.out.println("Client disconnected: " + clientId);
     }
 
+    public synchronized String getClientList() {
+        StringBuilder listBuilder = new StringBuilder();
+        listBuilder.append("List of clients:\n");
+        for (Map.Entry<Integer, String> entry : clientNames.entrySet()) {
+            listBuilder.append(entry.getValue());
+            if (entry.getKey().equals(coordinatorId)) {
+                listBuilder.append(" (Coordinator)");
+            }
+            listBuilder.append("\n");
+        }
+        return listBuilder.toString();
+    }
+
     public static void main(String[] args) {
         int port = 12345; // Change port as needed
         Server server = new Server(port);
