@@ -13,12 +13,12 @@ public class ClientHandler implements Runnable {
     private BufferedReader in;
     private boolean isCoordinator; // Flag indicating whether the client is the coordinator
 
-    public ClientHandler(Socket socket, Server server, String name) {
-        this.id = nextId++;
+    public ClientHandler(Socket socket, Server server, String name, int clientId) {
+        this.id = clientId; // Use provided client ID
         this.socket = socket;
         this.server = server;
         this.name = name;
-        this.isCoordinator = false; // Initially not a coordinator
+        this.isCoordinator = false;
 
         try {
             this.out = new PrintWriter(socket.getOutputStream(), true);
@@ -45,10 +45,25 @@ public class ClientHandler implements Runnable {
         try {
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
-                if (inputLine.equalsIgnoreCase("list")) {
+                if (inputLine.equalsIgnoreCase("/list")) {
                     // Handle special command to view client list
-                    String clientList = server.getClientList();
+                    String clientList = server.getClientListWithId();
                     sendMessage(clientList);
+                } else if (inputLine.startsWith("/msg")) {
+                    // Private message format: "/msg recipientId message"
+                    String[] parts = inputLine.split(" ", 3);
+                    try {
+                        int recipientId = Integer.parseInt(parts[1]);
+                        String privateMessage = parts[2];
+                        if (server.getClients().containsKey(recipientId)) {
+                            server.getClients().get(recipientId).sendMessage(name + " (private): " + privateMessage);
+                            sendMessage("Private message sent to client " + recipientId + ": " + privateMessage);
+                        } else {
+                            sendMessage("Error: Client " + recipientId + " not found or not connected.");
+                        }
+                    } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                        sendMessage("Invalid format. Usage: /msg recipientId message");
+                    }
                 } else {
                     // Broadcast the received message to all clients
                     server.broadcastMessage(id, inputLine);
@@ -61,4 +76,3 @@ public class ClientHandler implements Runnable {
         }
     }
 }
-
