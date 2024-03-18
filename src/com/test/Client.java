@@ -18,7 +18,7 @@ public class Client {
      * Constructs a Client object with the specified server address and port.
      *
      * @param serverAddress the IP address or hostname of the server
-     * @param serverPort the port number on which the server is listening for connections
+     * @param serverPort    the port number on which the server is listening for connections
      */
     public Client(String serverAddress, int serverPort) {
         this.serverAddress = serverAddress;
@@ -43,7 +43,12 @@ public class Client {
             Scanner scanner = new Scanner(System.in);
             while (true) {
                 String message = scanner.nextLine();
-                sendMessage(message);
+                if (message.startsWith("/msg")) {
+                    // Send private message
+                    sendPrivateMessage(message);
+                } else {
+                    sendMessage(message);
+                }
                 if (message.equalsIgnoreCase("quit")) {
                     disconnect(); // Disconnect if user types 'quit'
                     break;
@@ -85,6 +90,15 @@ public class Client {
     }
 
     /**
+     * Sends a private message to another client.
+     *
+     * @param message the private message in the format "/msg recipientId message"
+     */
+    public void sendPrivateMessage(String message) {
+        out.println(message);
+    }
+
+    /**
      * Runnable implementation for receiving messages from the server.
      */
     private class MessageReceiver implements Runnable {
@@ -94,7 +108,15 @@ public class Client {
                 // Continuously read messages from the server and print them to the console
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
-                    System.out.println("Received message: " + inputLine);
+                    if (inputLine.startsWith("msg")) {
+                        // Private message format: "/DM recipientId message"
+                        String[] parts = inputLine.split(" ", 3);
+                        int recipientId = Integer.parseInt(parts[1]);
+                        String message = parts[2];
+                        System.out.println("Private message from client " + recipientId + ": " + message);
+                    } else {
+                        System.out.println("Received message: " + inputLine);
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -114,4 +136,3 @@ public class Client {
         client.connect();
     }
 }
-
