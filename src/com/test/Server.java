@@ -5,13 +5,14 @@ import java.net.*;
 import java.util.*;
 
 public class Server {
-    private int port;
-    private Map<Integer, String> clientNames;
-    private Map<Integer, ClientHandler> clients;
-    private boolean running;
-    private Integer coordinatorId;
-    private int nextClientId; // Track next available client ID it changes to the next user
+    private int port; // Port number for server
+    private Map<Integer, String> clientNames; // Map to store client IDs and names
+    private Map<Integer, ClientHandler> clients; // Map to store connected clients and their handlers
+    private boolean running; // Flag to indicate if server is running
+    private Integer coordinatorId; // ID of the coordinator client
+    private int nextClientId; // Track next available client ID
 
+    // Constructor
     public Server(int port) {
         this.port = port;
         this.clientNames = new HashMap<>();
@@ -26,6 +27,7 @@ public class Server {
         return clients;
     }
 
+    // Method to start the server
     public void start() {
         try {
             ServerSocket serverSocket = new ServerSocket(port);
@@ -65,6 +67,7 @@ public class Server {
         }
     }
 
+    // Method to broadcast message to all clients
     public synchronized void broadcastMessage(int clientId, String message) {
         String senderName = clientNames.get(clientId);
         if (message.equalsIgnoreCase("/list")) {
@@ -96,7 +99,7 @@ public class Server {
         }
     }
 
-    // New method to get client list with IDs
+    // Method to get client list with IDs
     public synchronized String getClientListWithId() {
         StringBuilder listBuilder = new StringBuilder();
         listBuilder.append("List of clients with IDs:\n");
@@ -110,6 +113,7 @@ public class Server {
         return listBuilder.toString();
     }
 
+    // Method to remove client from server
     public synchronized void removeClient(int clientId) {
         clients.remove(clientId);
         clientNames.remove(clientId);
@@ -124,6 +128,7 @@ public class Server {
         System.out.println("Client disconnected: " + clientId);
     }
 
+    // Method to get client list
     public synchronized String getClientList() {
         StringBuilder listBuilder = new StringBuilder();
         listBuilder.append("List of clients:\n");
@@ -137,6 +142,7 @@ public class Server {
         return listBuilder.toString();
     }
 
+    // Method to change coordinator
     public synchronized void changeCoordinator(int newCoordinatorId) {
         if (clients.containsKey(newCoordinatorId)) {
             if (coordinatorId != null) {
@@ -153,8 +159,9 @@ public class Server {
         }
     }
 
+    // Main method to start the server
     public static void main(String[] args) {
-        int port = 12345;
+        int port = 12345; // Port number for server
         Server server = new Server(port);
         server.start();
     }
