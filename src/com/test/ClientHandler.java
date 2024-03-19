@@ -64,6 +64,19 @@ public class ClientHandler implements Runnable {
                     } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
                         sendMessage("Invalid format. Usage: /msg recipientId message");
                     }
+                } else if (inputLine.startsWith("/nc")) {
+                    // Change coordinator command: /nc clientID
+                    String[] parts = inputLine.split(" ", 2);
+                    try {
+                        int newCoordinatorId = Integer.parseInt(parts[1]);
+                        if (isCoordinator) {
+                            server.changeCoordinator(newCoordinatorId);
+                        } else {
+                            sendMessage("Error: Only the current coordinator can change the coordinator.");
+                        }
+                    } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                        sendMessage("Invalid format. Usage: /nc clientID");
+                    }
                 } else {
                     // Broadcast the received message to all clients
                     server.broadcastMessage(id, inputLine);
