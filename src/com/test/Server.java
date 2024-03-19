@@ -145,7 +145,10 @@ public class Server {
         return listBuilder.toString();
     }
 
-    
+    // Method to change coordinator
+    public synchronized void changeCoordinator(int newCoordinatorId) {
+        if (clients.containsKey(newCoordinatorId)) {
+            if (coordinatorId != null) {
                 // Remove coordinator status from the current coordinator
                 clients.get(coordinatorId).setCoordinator(false);
             }
@@ -159,9 +162,9 @@ public class Server {
         }
     }
 
-    // Main method to start the server
+    
     public static void main(String[] args) {
-        int port = 12345; // Port number for server
+        int port = 12345; 
         Server server = new Server(port);
         server.start();
     }
