@@ -71,7 +71,7 @@ public class Client {
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
                     if (inputLine.startsWith("/msg")) {
-                        // Private message format: "/msg senderId message"
+                        // Private message format: "/msg senderId message" use clientid to send private message
                         String[] parts = inputLine.split(" ", 3);
                         try {
                             int senderId = Integer.parseInt(parts[1]);
