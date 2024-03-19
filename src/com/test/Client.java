@@ -9,7 +9,7 @@ public class Client {
     private int serverPort;
     private Socket socket;
     private PrintWriter out;
-    private BufferedReader in;
+    private BufferedReader in; //comments needed
 
     public Client(String serverAddress, int serverPort) {
         this.serverAddress = serverAddress;
