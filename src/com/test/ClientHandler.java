@@ -6,7 +6,7 @@ import java.net.*;
 public class ClientHandler implements Runnable {
     private static int nextId = 1;
     private int id;
-    private String name; // Client's name
+    private String name; // Client's name same name can be used for different clients but the client id will be different
     private Socket socket;
     private Server server;
     private PrintWriter out;
