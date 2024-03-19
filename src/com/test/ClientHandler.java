@@ -55,7 +55,7 @@ public class ClientHandler implements Runnable {
                     String clientList = server.getClientListWithId();
                     sendMessage(clientList);
                 } else if (inputLine.startsWith("/msg")) {
-                    // Private message format: "/msg recipientId message"
+                    
                     String[] parts = inputLine.split(" ", 3);
                     try {
                         int recipientId = Integer.parseInt(parts[1]);
