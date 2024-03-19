@@ -8,7 +8,7 @@ import java.net.*;
 
 // ClientGUI class for the graphical user interface of the chat client
 public class ClientGUI {
-    private JFrame frame;
+    private JFrame frame; //add more comments
     private JTextArea chatArea;
     private JTextField messageField;
     private JButton sendButton;
