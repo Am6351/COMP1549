@@ -55,7 +55,7 @@ public class ClientHandler implements Runnable {
                     String clientList = server.getClientListWithId();
                     sendMessage(clientList);
                 } else if (inputLine.startsWith("/msg")) {
-                    
+                    // Private message format: "/msg recipientId message"
                     String[] parts = inputLine.split(" ", 3);
                     try {
                         int recipientId = Integer.parseInt(parts[1]);
@@ -83,7 +83,7 @@ public class ClientHandler implements Runnable {
                         sendMessage("Invalid format. Usage: /nc clientID");
                     }
                 } else {
-                    
+                    // Broadcast the received message to all clients
                     server.broadcastMessage(id, inputLine);
                 }
             }
