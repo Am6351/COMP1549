@@ -10,7 +10,7 @@ public class Server {
     private Map<Integer, ClientHandler> clients;
     private boolean running;
     private Integer coordinatorId;
-    private int nextClientId; // Track next available client ID
+    private int nextClientId; // Track next available client ID it changes to the next user
 
     public Server(int port) {
         this.port = port;
