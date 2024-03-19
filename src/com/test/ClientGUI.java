@@ -15,39 +15,39 @@ public class ClientGUI {
     private JButton changeCoordinatorButton; // Button to change coordinator
     private ChatClient client; // Instance of ChatClient for handling communication with the server
 
-    // Constructor to initialize the GUI
+    // Constructor to initialise the GUI
     public ClientGUI(ChatClient client) {
         this.client = client;
 
-        // Initialize main frame
+        // Initialise main frame
         frame = new JFrame("Chat Client");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 300);
         frame.setLayout(new BorderLayout());
 
-        // Initialize chat area
+        // Initialise chat area
         chatArea = new JTextArea();
         chatArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(chatArea);
         frame.add(scrollPane, BorderLayout.CENTER);
 
-        // Initialize bottom panel for message input and buttons
+        // Initialise bottom panel for message input and buttons
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BorderLayout());
 
-        // Initialize message input field
+        // Initialise message input field
         messageField = new JTextField();
         bottomPanel.add(messageField, BorderLayout.CENTER);
 
-        // Initialize send button
+        // Initialise send button
         sendButton = new JButton("Send");
         bottomPanel.add(sendButton, BorderLayout.EAST);
 
-        // Initialize private message button
+        // Initialise private message button
         privateMessageButton = new JButton("Private Message");
         bottomPanel.add(privateMessageButton, BorderLayout.WEST);
 
-        // Initialize change coordinator button
+        // Initialise change coordinator button
         changeCoordinatorButton = new JButton("Change Coordinator");
         bottomPanel.add(changeCoordinatorButton, BorderLayout.WEST);
 
@@ -136,7 +136,7 @@ public class ClientGUI {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                // Create and initialize the GUI with a ChatClient instance
+                // Create and initialise the GUI with a ChatClient instance
                 new ClientGUI(new ChatClient("localhost", 12345));
             }
         });
@@ -150,16 +150,16 @@ class ChatClient {
     private BufferedReader in; // Input stream for receiving messages from the server
     private ClientGUI gui; // Reference to the GUI for updating the chat interface
 
-    // Constructor to initialize the client with the server address and port
+    // Constructor to initialise the client with the server address and port
     public ChatClient(String serverAddress, int serverPort) {
         try {
             // Establish connection with the server
             socket = new Socket(serverAddress, serverPort);
-            // Initialize output stream for sending messages
+            // Initialise output stream for sending messages
             out = new PrintWriter(socket.getOutputStream(), true);
-            // Initialize input stream for receiving messages
+            // Initialise input stream for receiving messages
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            // Initialize GUI with a reference to this client instance
+            // Initialise GUI with a reference to this client instance
             gui = new ClientGUI(this);
 
             // Start a new thread for receiving messages from the server
