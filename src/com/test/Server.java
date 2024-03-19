@@ -117,7 +117,10 @@ public class Server {
     }
 
     // Method to remove client from server
-   
+    public synchronized void removeClient(int clientId) {
+        clients.remove(clientId);
+        clientNames.remove(clientId);
+        if (clientId == coordinatorId) {
             if (!clients.isEmpty()) {
                 coordinatorId = clients.keySet().iterator().next();
                 clients.get(coordinatorId).setCoordinator(true);
@@ -154,9 +157,7 @@ public class Server {
             clients.get(coordinatorId).setCoordinator(true);
             // Notify clients about the change
             broadcastMessage(-1, "Coordinator changed. New coordinator is: " + clientNames.get(coordinatorId));
-        } else {
-            System.out.println("Error: Client " + newCoordinatorId + " not found or not connected.");
-        }
+
     }
 
     // Main method to start the server
