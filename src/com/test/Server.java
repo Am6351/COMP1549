@@ -5,24 +5,24 @@ import java.net.*;
 import java.util.*;
 
 public class Server {
-    private int port; // Port number for server
+    private int port; 
     private Map<Integer, String> clientNames; // Map to store client IDs and names
     private Map<Integer, ClientHandler> clients; // Map to store connected clients and their handlers
-    private boolean running; // Flag to indicate if server is running
-    private Integer coordinatorId; // ID of the coordinator client
+    private boolean running; 
+    private Integer coordinatorId; 
     private int nextClientId; // Track next available client ID
 
     // Constructor
     public Server(int port) {
         this.port = port;
-        this.clientNames = new HashMap<>(); 
-        this.clients = new HashMap<>(); 
+        this.clientNames = new HashMap<>(); // Initialize clientNames map
+        this.clients = new HashMap<>(); // Initialize clients map
         this.running = false; 
-        this.coordinatorId = null; 
-        this.nextClientId = 1; 
+        this.coordinatorId = null; // No coordinator initially
+        this.nextClientId = 1; // Initialize client ID counter
     }
 
-    
+    // Getter for clients map
     public Map<Integer, ClientHandler> getClients() {
         return clients;
     }
