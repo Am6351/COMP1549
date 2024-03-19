@@ -117,10 +117,7 @@ public class Server {
     }
 
     // Method to remove client from server
-    public synchronized void removeClient(int clientId) {
-        clients.remove(clientId);
-        clientNames.remove(clientId);
-        if (clientId == coordinatorId) {
+   
             if (!clients.isEmpty()) {
                 coordinatorId = clients.keySet().iterator().next();
                 clients.get(coordinatorId).setCoordinator(true);
@@ -162,9 +159,9 @@ public class Server {
         }
     }
 
-    
+    // Main method to start the server
     public static void main(String[] args) {
-        int port = 12345; 
+        int port = 12345; // Port number for server
         Server server = new Server(port);
         server.start();
     }
