@@ -78,7 +78,7 @@ public class ClientHandler implements Runnable {
                         sendMessage("Invalid format. Usage: /nc clientID");
                     }
                 } else {
-                    // Broadcast the received message to all clients
+                    // Broadcast the received message to all clients /it goes to every joined client
                     server.broadcastMessage(id, inputLine);
                 }
             }
