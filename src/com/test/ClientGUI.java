@@ -101,7 +101,7 @@ public class ClientGUI {
         }
     }
 
-    // Method to send a private message
+    // Method to send a private message using /msg
     private void sendPrivateMessage() {
         String recipientIdStr = JOptionPane.showInputDialog(frame, "Enter recipient ID:");
         if (recipientIdStr != null && !recipientIdStr.isEmpty()) {
