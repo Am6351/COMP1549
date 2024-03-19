@@ -8,7 +8,7 @@ public class ClientHandler implements Runnable {
     private int id; // Unique ID for each client
     private String name; // Client's name same name can be used for different clients but the client id will be different
     private Socket socket;
-    private Server server;
+    private Server server; // Reference to the server
     private PrintWriter out;
     private BufferedReader in; // Reader to receive messages from the client
     private boolean isCoordinator; // Flag indicating whether the client is the coordinator
