@@ -65,7 +65,7 @@ public class ClientHandler implements Runnable {
                         sendMessage("Invalid format. Usage: /msg recipientId message");
                     }
                 } else if (inputLine.startsWith("/nc")) {
-                    // Change coordinator command: /nc clientID
+                    // Change coordinator command: /nc clientID /use the button on gui
                     String[] parts = inputLine.split(" ", 2);
                     try {
                         int newCoordinatorId = Integer.parseInt(parts[1]);
