@@ -1,8 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
-import java.net.*;
+
 
 public class ClientGUI {
     private JFrame frame;
@@ -161,7 +160,10 @@ class ChatClient {
         }
     }
 
-
+    // Method to send message
+    public void sendMessage(String message) {
+        out.println(message);
+    }
 
     // Method to send private message
     public void sendPrivateMessage(int recipientId, String message) {
