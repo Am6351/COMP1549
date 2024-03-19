@@ -10,7 +10,7 @@ public class ClientHandler implements Runnable {
     private Socket socket;
     private Server server;
     private PrintWriter out;
-    private BufferedReader in;
+    private BufferedReader in; // Reader to receive messages from the client
     private boolean isCoordinator; // Flag indicating whether the client is the coordinator
 
     public ClientHandler(Socket socket, Server server, String name, int clientId) {
