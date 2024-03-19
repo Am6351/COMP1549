@@ -145,15 +145,12 @@ public class Server {
         return listBuilder.toString();
     }
 
-    // Method to change coordinator
-    public synchronized void changeCoordinator(int newCoordinatorId) {
-        if (clients.containsKey(newCoordinatorId)) {
-            if (coordinatorId != null) {
-                
+    
+                // Remove coordinator status from the current coordinator
                 clients.get(coordinatorId).setCoordinator(false);
             }
             coordinatorId = newCoordinatorId;
-            
+            // Set the new coordinator flag for the chosen client
             clients.get(coordinatorId).setCoordinator(true);
             // Notify clients about the change
             broadcastMessage(-1, "Coordinator changed. New coordinator is: " + clientNames.get(coordinatorId));
