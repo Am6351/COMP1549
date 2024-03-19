@@ -34,7 +34,7 @@ public class Server {
             ServerSocket serverSocket = new ServerSocket(port);
             System.out.println("Server started on port " + port);
 
-            running = true; // Server is now running
+            running = true; //what is happenning?
             while (running) {
                 // Accept incoming client connection
                 Socket socket = serverSocket.accept();
@@ -157,7 +157,9 @@ public class Server {
             clients.get(coordinatorId).setCoordinator(true);
             // Notify clients about the change
             broadcastMessage(-1, "Coordinator changed. New coordinator is: " + clientNames.get(coordinatorId));
-
+        } else {
+            System.out.println("Error: Client " + newCoordinatorId + " not found or not connected.");
+        }
     }
 
     // Main method to start the server
