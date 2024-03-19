@@ -4,15 +4,16 @@ import java.io.*;
 import java.net.*;
 
 public class ClientHandler implements Runnable {
-    private static int nextId = 1;
+    private static int nextId = 1; // Static variable to assign unique IDs to clients
     private int id; // Unique ID for each client
     private String name; // Client's name same name can be used for different clients but the client id will be different
-    private Socket socket;
+    private Socket socket; // Socket associated with this client
     private Server server; // Reference to the server
-    private PrintWriter out;
+    private PrintWriter out; // Writer to send messages to the client
     private BufferedReader in; // Reader to receive messages from the client
     private boolean isCoordinator; // Flag indicating whether the client is the coordinator
 
+    // Constructor
     public ClientHandler(Socket socket, Server server, String name, int clientId) {
         this.id = clientId; // Use provided client ID
         this.socket = socket;
@@ -21,25 +22,29 @@ public class ClientHandler implements Runnable {
         this.isCoordinator = false;
 
         try {
-            this.out = new PrintWriter(socket.getOutputStream(), true);
-            this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            this.out = new PrintWriter(socket.getOutputStream(), true); // Initialize output stream
+            this.in = new BufferedReader(new InputStreamReader(socket.getInputStream())); // Initialize input stream
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    // Getter for client ID
     public int getId() {
         return id;
     }
 
+    // Method to send a message to the client
     public void sendMessage(String message) {
         out.println(message);
     }
 
+    // Setter for coordinator status
     public void setCoordinator(boolean isCoordinator) {
         this.isCoordinator = isCoordinator;
     }
 
+    // Method to handle client's operations
     @Override
     public void run() {
         try {
@@ -65,7 +70,7 @@ public class ClientHandler implements Runnable {
                         sendMessage("Invalid format. Usage: /msg recipientId message");
                     }
                 } else if (inputLine.startsWith("/nc")) {
-                    // Change coordinator command: /nc clientID /use the button on gui
+                    // Change coordinator command: /nc clientID
                     String[] parts = inputLine.split(" ", 2);
                     try {
                         int newCoordinatorId = Integer.parseInt(parts[1]);
@@ -78,7 +83,7 @@ public class ClientHandler implements Runnable {
                         sendMessage("Invalid format. Usage: /nc clientID");
                     }
                 } else {
-                    // Broadcast the received message to all clients /it goes to every joined client
+                    
                     server.broadcastMessage(id, inputLine);
                 }
             }
