@@ -9,7 +9,9 @@ public class ClientGUI {
     private JTextArea chatArea;
     private JTextField messageField;
     private JButton sendButton;
-
+    private JButton privateMessageButton;
+    private JButton changeCoordinatorButton;
+    private ChatClient client;
 
     // Constructor
     public ClientGUI(ChatClient client) {
@@ -159,10 +161,7 @@ class ChatClient {
         }
     }
 
-    // Method to send message
-    public void sendMessage(String message) {
-        out.println(message);
-    }
+
 
     // Method to send private message
     public void sendPrivateMessage(int recipientId, String message) {
