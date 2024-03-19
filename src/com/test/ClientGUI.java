@@ -7,19 +7,19 @@ import java.io.*;
 import java.net.*;
 
 public class ClientGUI {
-    private JFrame frame;
-    private JTextArea chatArea;
-    private JTextField messageField;
-    private JButton sendButton;
-    private JButton privateMessageButton;
-    private JButton changeCoordinatorButton;
-    private ChatClient client;
+    private JFrame frame; // Main frame for the GUI
+    private JTextArea chatArea; // Text area to display chat messages
+    private JTextField messageField; // Text field for typing messages
+    private JButton sendButton; // Button to send messages
+    private JButton privateMessageButton; // Button to send private messages
+    private JButton changeCoordinatorButton; // Button to change coordinator
+    private ChatClient client; // Instance of ChatClient for handling communication with the server
 
-    // Constructor
+    // Constructor to initialize the GUI
     public ClientGUI(ChatClient client) {
         this.client = client;
 
-        // Initialize frame
+        // Initialize main frame
         frame = new JFrame("Chat Client");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 300);
@@ -31,11 +31,11 @@ public class ClientGUI {
         JScrollPane scrollPane = new JScrollPane(chatArea);
         frame.add(scrollPane, BorderLayout.CENTER);
 
-        // Initialize bottom panel
+        // Initialize bottom panel for message input and buttons
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BorderLayout());
 
-        // Initialize message field
+        // Initialize message input field
         messageField = new JTextField();
         bottomPanel.add(messageField, BorderLayout.CENTER);
 
@@ -51,9 +51,10 @@ public class ClientGUI {
         changeCoordinatorButton = new JButton("Change Coordinator");
         bottomPanel.add(changeCoordinatorButton, BorderLayout.WEST);
 
+        // Add bottom panel to the main frame
         frame.add(bottomPanel, BorderLayout.SOUTH);
 
-        // Add action listeners
+        // Attach action listeners to buttons
         sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -82,15 +83,16 @@ public class ClientGUI {
             }
         });
 
+        // Make the frame visible
         frame.setVisible(true);
     }
 
-    // Method to append message to chat area
+    // Method to append a message to the chat area
     public void appendMessage(String message) {
         chatArea.append(message + "\n");
     }
 
-    // Method to send message
+    // Method to send a message to the server
     private void sendMessage() {
         String message = messageField.getText().trim();
         if (!message.isEmpty()) {
@@ -99,7 +101,7 @@ public class ClientGUI {
         }
     }
 
-    // Method to send private message
+    // Method to send a private message to a specific recipient
     private void sendPrivateMessage() {
         String recipientIdStr = JOptionPane.showInputDialog(frame, "Enter recipient ID:");
         if (recipientIdStr != null && !recipientIdStr.isEmpty()) {
@@ -116,7 +118,7 @@ public class ClientGUI {
         }
     }
 
-    // Method to change coordinator
+    // Method to change the coordinator (server) in the chat system
     private void changeCoordinator() {
         String newCoordinatorIdStr = JOptionPane.showInputDialog(frame, "Enter new coordinator ID:");
         if (newCoordinatorIdStr != null && !newCoordinatorIdStr.isEmpty()) {
@@ -129,63 +131,69 @@ public class ClientGUI {
         }
     }
 
-    // Main method to start client GUI
+    // Main method to create and run the GUI
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
+                // Create and initialize the GUI with a ChatClient instance
                 new ClientGUI(new ChatClient("localhost", 12345));
             }
         });
     }
 }
 
-// ChatClient class
+// Class representing a client in the chat system
 class ChatClient {
-    private Socket socket;
-    private PrintWriter out;
-    private BufferedReader in;
-    private ClientGUI gui;
+    private Socket socket; // Socket for communication with the server
+    private PrintWriter out; // Output stream for sending messages to the server
+    private BufferedReader in; // Input stream for receiving messages from the server
+    private ClientGUI gui; // Reference to the GUI for updating the chat interface
 
-    // Constructor
+    // Constructor to initialize the client with the server address and port
     public ChatClient(String serverAddress, int serverPort) {
         try {
-            // Initialize socket, input stream, and output stream
+            // Establish connection with the server
             socket = new Socket(serverAddress, serverPort);
+            // Initialize output stream for sending messages
             out = new PrintWriter(socket.getOutputStream(), true);
+            // Initialize input stream for receiving messages
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            gui = new ClientGUI(this); // Initialize GUI
+            // Initialize GUI with a reference to this client instance
+            gui = new ClientGUI(this);
 
-            // Start a new thread to receive messages
+            // Start a new thread for receiving messages from the server
             new Thread(new MessageReceiver()).start();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // Method to send message
+    // Method to send a message to the server
     public void sendMessage(String message) {
         out.println(message);
     }
 
-    // Method to send private message
+    // Method to send a private message to a specific recipient
     public void sendPrivateMessage(int recipientId, String message) {
         out.println("/msg " + recipientId + " " + message);
     }
 
-    // Method to change coordinator
+    // Method to change the coordinator (server) in the chat system
     public void changeCoordinator(int newCoordinatorId) {
         out.println("/nc " + newCoordinatorId);
     }
 
-    // MessageReceiver class
+    // Inner class for receiving messages from the server in a separate thread
     private class MessageReceiver implements Runnable {
         @Override
         public void run() {
             try {
                 String inputLine;
+                // Continuously read messages from the server
                 while ((inputLine = in.readLine()) != null) {
-                    gui.appendMessage(inputLine); // Append received message to GUI
+                    // Update the GUI with the received message
+                    gui.appendMessage(inputLine);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
