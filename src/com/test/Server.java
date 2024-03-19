@@ -15,14 +15,14 @@ public class Server {
     // Constructor
     public Server(int port) {
         this.port = port;
-        this.clientNames = new HashMap<>();
-        this.clients = new HashMap<>();
-        this.running = false;
-        this.coordinatorId = null;
-        this.nextClientId = 1; // Initialize client ID counter
+        this.clientNames = new HashMap<>(); 
+        this.clients = new HashMap<>(); 
+        this.running = false; 
+        this.coordinatorId = null; 
+        this.nextClientId = 1; 
     }
 
-    // Getter for clients map
+    
     public Map<Integer, ClientHandler> getClients() {
         return clients;
     }
@@ -30,11 +30,13 @@ public class Server {
     // Method to start the server
     public void start() {
         try {
+            // Initialize server socket
             ServerSocket serverSocket = new ServerSocket(port);
             System.out.println("Server started on port " + port);
 
-            running = true;
+            running = true; 
             while (running) {
+                // Accept incoming client connection
                 Socket socket = serverSocket.accept();
                 System.out.println("New client connected: " + socket);
 
@@ -59,9 +61,10 @@ public class Server {
                     clientHandler.setCoordinator(true);
                 }
 
+                // Start a new thread to handle client
                 new Thread(clientHandler).start();
             }
-            serverSocket.close();
+            serverSocket.close(); // Close server socket when server stops
         } catch (IOException e) {
             e.printStackTrace();
         }
