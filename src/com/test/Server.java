@@ -5,11 +5,11 @@ import java.net.*;
 import java.util.*;
 
 public class Server {
-    private int port; 
+    private int port; // Port number for server
     private Map<Integer, String> clientNames; // Map to store client IDs and names
     private Map<Integer, ClientHandler> clients; // Map to store connected clients and their handlers
-    private boolean running; 
-    private Integer coordinatorId; 
+    private boolean running; // Flag to indicate if server is running
+    private Integer coordinatorId; // ID of the coordinator client
     private int nextClientId; // Track next available client ID
 
     // Constructor
@@ -17,7 +17,7 @@ public class Server {
         this.port = port;
         this.clientNames = new HashMap<>(); // Initialize clientNames map
         this.clients = new HashMap<>(); // Initialize clients map
-        this.running = false; 
+        this.running = false; // Server is not running initially
         this.coordinatorId = null; // No coordinator initially
         this.nextClientId = 1; // Initialize client ID counter
     }
@@ -34,7 +34,7 @@ public class Server {
             ServerSocket serverSocket = new ServerSocket(port);
             System.out.println("Server started on port " + port);
 
-            running = true; 
+            running = true; // Server is now running
             while (running) {
                 // Accept incoming client connection
                 Socket socket = serverSocket.accept();
@@ -149,11 +149,11 @@ public class Server {
     public synchronized void changeCoordinator(int newCoordinatorId) {
         if (clients.containsKey(newCoordinatorId)) {
             if (coordinatorId != null) {
-                // Remove coordinator status from the current coordinator
+                
                 clients.get(coordinatorId).setCoordinator(false);
             }
             coordinatorId = newCoordinatorId;
-            // Set the new coordinator flag for the chosen client
+            
             clients.get(coordinatorId).setCoordinator(true);
             // Notify clients about the change
             broadcastMessage(-1, "Coordinator changed. New coordinator is: " + clientNames.get(coordinatorId));
