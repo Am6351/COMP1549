@@ -1,7 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-
+import java.io.*;
+import java.net.*;
 
 public class ClientGUI {
     private JFrame frame;
