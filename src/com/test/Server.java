@@ -34,7 +34,7 @@ public class Server {
             ServerSocket serverSocket = new ServerSocket(port);
             System.out.println("Server started on port " + port);
 
-            running = true; //what is happenning?
+            running = true; // Server is now running
             while (running) {
                 // Accept incoming client connection
                 Socket socket = serverSocket.accept();
