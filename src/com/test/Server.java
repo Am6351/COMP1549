@@ -4,21 +4,26 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-/**
- * Represents a simple chat server that listens for client connections
- * and handles communication between clients.
- */
 public class Server {
     private int port;
-    private Map<Integer, String> clientNames; // Map to store client names with their IDs
+    private Map<Integer, String> clientNames;
     private Map<Integer, ClientHandler> clients;
     private boolean running;
+    private Integer coordinatorId;
+    private int nextClientId; // Track next available client ID
 
     public Server(int port) {
         this.port = port;
         this.clientNames = new HashMap<>();
         this.clients = new HashMap<>();
         this.running = false;
+        this.coordinatorId = null;
+        this.nextClientId = 1; // Initialize client ID counter
+    }
+
+    // Getter for clients map
+    public Map<Integer, ClientHandler> getClients() {
+        return clients;
     }
 
     public void start() {
@@ -31,16 +36,27 @@ public class Server {
                 Socket socket = serverSocket.accept();
                 System.out.println("New client connected: " + socket);
 
-                // Prompt the client for their name
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                out.println("Enter your name:");
+
+                // Prompt including client ID
+                out.println("Enter your name (Your ID is " + nextClientId + "):");
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String name = in.readLine();
 
-                // Create a new ClientHandler for each connected client and start it in a separate thread
-                ClientHandler clientHandler = new ClientHandler(socket, this, name);
+                // Create client handler with client ID
+                ClientHandler clientHandler = new ClientHandler(socket, this, name, nextClientId);
                 clients.put(clientHandler.getId(), clientHandler);
                 clientNames.put(clientHandler.getId(), name);
+
+                // Increment client ID for the next client
+                nextClientId++;
+
+                // Coordinator setup
+                if (coordinatorId == null) {
+                    coordinatorId = clientHandler.getId();
+                    clientHandler.setCoordinator(true);
+                }
+
                 new Thread(clientHandler).start();
             }
             serverSocket.close();
@@ -51,21 +67,94 @@ public class Server {
 
     public synchronized void broadcastMessage(int clientId, String message) {
         String senderName = clientNames.get(clientId);
-        for (ClientHandler client : clients.values()) {
-            if (client.getId() != clientId) {
-                client.sendMessage(senderName + ": " + message); // Include sender's name in the message
+        if (message.equalsIgnoreCase("/list")) {
+            // Special command to view client list
+            String clientList = getClientListWithId(); // Get client list with IDs
+            clients.get(clientId).sendMessage(clientList);
+        } else if (message.startsWith("/msg")) {
+            // Private message format: "/msg recipientId message"
+            String[] parts = message.split(" ", 3);
+            try {
+                int recipientId = Integer.parseInt(parts[1]);
+                String privateMessage = parts[2];
+                if (clients.containsKey(recipientId)) {
+                    clients.get(recipientId).sendMessage(senderName + " (private): " + privateMessage);
+                    clients.get(clientId).sendMessage("Private message sent to client " + recipientId + ": " + privateMessage);
+                } else {
+                    clients.get(clientId).sendMessage("Error: Client " + recipientId + " not found or not connected.");
+                }
+            } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                clients.get(clientId).sendMessage("Invalid format. Usage: /msg recipientId message");
+            }
+        } else {
+            // Broadcast the message to all clients except the sender
+            for (ClientHandler client : clients.values()) {
+                if (client.getId() != clientId) {
+                    client.sendMessage(senderName + ": " + message); // Include sender's name in the message
+                }
             }
         }
+    }
+
+    // New method to get client list with IDs
+    public synchronized String getClientListWithId() {
+        StringBuilder listBuilder = new StringBuilder();
+        listBuilder.append("List of clients with IDs:\n");
+        for (Map.Entry<Integer, String> entry : clientNames.entrySet()) {
+            listBuilder.append("ID: ").append(entry.getKey()).append(", Name: ").append(entry.getValue());
+            if (entry.getKey().equals(coordinatorId)) {
+                listBuilder.append(" (Coordinator)");
+            }
+            listBuilder.append("\n");
+        }
+        return listBuilder.toString();
     }
 
     public synchronized void removeClient(int clientId) {
         clients.remove(clientId);
         clientNames.remove(clientId);
+        if (clientId == coordinatorId) {
+            if (!clients.isEmpty()) {
+                coordinatorId = clients.keySet().iterator().next();
+                clients.get(coordinatorId).setCoordinator(true);
+            } else {
+                coordinatorId = null;
+            }
+        }
         System.out.println("Client disconnected: " + clientId);
     }
 
+    public synchronized String getClientList() {
+        StringBuilder listBuilder = new StringBuilder();
+        listBuilder.append("List of clients:\n");
+        for (Map.Entry<Integer, String> entry : clientNames.entrySet()) {
+            listBuilder.append(entry.getValue());
+            if (entry.getKey().equals(coordinatorId)) {
+                listBuilder.append(" (Coordinator)");
+            }
+            listBuilder.append("\n");
+        }
+        return listBuilder.toString();
+    }
+
+    public synchronized void changeCoordinator(int newCoordinatorId) {
+        if (clients.containsKey(newCoordinatorId)) {
+            if (coordinatorId != null) {
+                // Remove coordinator status from the current coordinator
+                clients.get(coordinatorId).setCoordinator(false);
+            }
+            coordinatorId = newCoordinatorId;
+            // Set the new coordinator flag for the chosen client
+            clients.get(coordinatorId).setCoordinator(true);
+            // Notify clients about the change
+            broadcastMessage(-1, "Coordinator changed. New coordinator is: " + clientNames.get(coordinatorId));
+        } else {
+            System.out.println("Error: Client " + newCoordinatorId + " not found or not connected.");
+        }
+    }
+
     public static void main(String[] args) {
-        int port = 12345; // Change port as needed
+        int port = 12345;
         Server server = new Server(port);
         server.start();
     }

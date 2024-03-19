@@ -11,12 +11,14 @@ public class ClientHandler implements Runnable {
     private Server server;
     private PrintWriter out;
     private BufferedReader in;
+    private boolean isCoordinator; // Flag indicating whether the client is the coordinator
 
-    public ClientHandler(Socket socket, Server server, String name) {
-        this.id = nextId++;
+    public ClientHandler(Socket socket, Server server, String name, int clientId) {
+        this.id = clientId; // Use provided client ID
         this.socket = socket;
         this.server = server;
         this.name = name;
+        this.isCoordinator = false;
 
         try {
             this.out = new PrintWriter(socket.getOutputStream(), true);
@@ -34,13 +36,51 @@ public class ClientHandler implements Runnable {
         out.println(message);
     }
 
+    public void setCoordinator(boolean isCoordinator) {
+        this.isCoordinator = isCoordinator;
+    }
+
     @Override
     public void run() {
         try {
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
-                System.out.println("Message from client " + name + ": " + inputLine);
-                server.broadcastMessage(id, inputLine);
+                if (inputLine.equalsIgnoreCase("/list")) {
+                    // Handle special command to view client list
+                    String clientList = server.getClientListWithId();
+                    sendMessage(clientList);
+                } else if (inputLine.startsWith("/msg")) {
+                    // Private message format: "/msg recipientId message"
+                    String[] parts = inputLine.split(" ", 3);
+                    try {
+                        int recipientId = Integer.parseInt(parts[1]);
+                        String privateMessage = parts[2];
+                        if (server.getClients().containsKey(recipientId)) {
+                            server.getClients().get(recipientId).sendMessage(name + " (private): " + privateMessage);
+                            sendMessage("Private message sent to client " + recipientId + ": " + privateMessage);
+                        } else {
+                            sendMessage("Error: Client " + recipientId + " not found or not connected.");
+                        }
+                    } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                        sendMessage("Invalid format. Usage: /msg recipientId message");
+                    }
+                } else if (inputLine.startsWith("/nc")) {
+                    // Change coordinator command: /nc clientID /use the button on gui
+                    String[] parts = inputLine.split(" ", 2);
+                    try {
+                        int newCoordinatorId = Integer.parseInt(parts[1]);
+                        if (isCoordinator) {
+                            server.changeCoordinator(newCoordinatorId);
+                        } else {
+                            sendMessage("Error: Only the current coordinator can change the coordinator.");
+                        }
+                    } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                        sendMessage("Invalid format. Usage: /nc clientID");
+                    }
+                } else {
+                    // Broadcast the received message to all clients
+                    server.broadcastMessage(id, inputLine);
+                }
             }
             server.removeClient(id);
             socket.close();
