@@ -15,11 +15,11 @@ public class Server {
     // Constructor
     public Server(int port) {
         this.port = port;
-        this.clientNames = new HashMap<>(); // Initialize clientNames map
-        this.clients = new HashMap<>(); // Initialize clients map
-        this.running = false; // Server is not running initially
-        this.coordinatorId = null; // No coordinator initially
-        this.nextClientId = 1; // Initialize client ID counter
+        this.clientNames = new HashMap<>();
+        this.clients = new HashMap<>();
+        this.running = false;
+        this.coordinatorId = null;
+        this.nextClientId = 1; // Initialise client ID counter
     }
 
     // Getter for clients map
@@ -30,20 +30,23 @@ public class Server {
     // Method to start the server
     public void start() {
         try {
-            // Initialize server socket
+            // Initialise server socket
             ServerSocket serverSocket = new ServerSocket(port);
             System.out.println("Server started on port " + port);
 
-            running = true; // Server is now running
+            running = true;
+            // Accept incoming client connections
             while (running) {
-                // Accept incoming client connection
                 Socket socket = serverSocket.accept();
                 System.out.println("New client connected: " + socket);
 
+                // Initialise output stream for sending initial prompt to client
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
                 // Prompt including client ID
                 out.println("Enter your name (Your ID is " + nextClientId + "):");
+                
+                // Initialise input stream for reading client name
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String name = in.readLine();
 
@@ -61,10 +64,10 @@ public class Server {
                     clientHandler.setCoordinator(true);
                 }
 
-                // Start a new thread to handle client
+                // Start a new thread for handling client
                 new Thread(clientHandler).start();
             }
-            serverSocket.close(); // Close server socket when server stops
+            serverSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
