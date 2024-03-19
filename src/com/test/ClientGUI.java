@@ -13,7 +13,7 @@ public class ClientGUI {
     private JTextField messageField;
     private JButton sendButton;
     private JButton privateMessageButton;
-    private JButton changeCoordinatorButton;
+    private JButton changeCoordinatorButton; //comment here as well
     private ChatClient client;
 
     // Constructor to initialize the GUI components
